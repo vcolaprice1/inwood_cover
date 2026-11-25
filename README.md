@@ -83,3 +83,7 @@ The existing local `codex/pages` branch can be updated by the subtree command wh
 - Natural Earth fallback, public domain: https://www.naturalearthdata.com/about/terms-of-use/
 
 Natural Earth fallback data derive from 1:50m land, lakes and rivers, clipped to Europe. Research-data rights remain with their holders; no open licence is assigned without the author's instruction. Google Fonts are optional, with system-font fallbacks.
+
+## Forest share of the study area
+
+The sidebar reports the total study boundary area and the percentage covered by forest in each reconstruction. Forest share = (total reconstructed forest minus forest outside the study boundary) / total study boundary area × 100. The denominator includes all land and water in the boundary, including the three municipalities for Belluno. Changes in this share are percentage points. Full forest-area totals and map layers remain unchanged. The six-period CSV is `dist/data/forest-share.csv`. Run `python scripts/coverage_ratios.py` to refresh these values from analytical areas; full data preparation also generates them. Háromszék shows only its total study area until forest data are available.

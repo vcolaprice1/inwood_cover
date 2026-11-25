@@ -106,6 +106,9 @@ def main():
             layer(f'{key}-{k}',g,{'case':name,'class':k,'label':labels[0] if k=='early' else labels[1] if k=='late' else k})
             rows.append(dict(case=name,layer=k,area_ha=g.area/1e4,area_km2=g.area/1e6))
         cases.append(case)
+    from coverage_ratios import add_coverage, export_csv
+    for case in cases: add_coverage(case)
+    export_csv(cases)
     save('boundaries.geojson',fc(boundaries,5))
     save('catalog.json',dict(cases=cases,method=dict(area_crs='EPSG:3035',display_crs='EPSG:4326',display_simplification_m=5,display_min_component_m2=25,imperial_clipping=False,boundary_clipping=False),audit=AUDIT))
     with (OUT/'areas.csv').open('w',encoding='utf-8-sig',newline='') as f:
