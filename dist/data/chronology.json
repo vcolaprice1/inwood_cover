@@ -1,0 +1,36 @@
+{
+  "belluno": {
+    "region": "Italy",
+    "subtitle": "Belluno province and three present-day municipalities",
+    "labels": ["1875–1876*", "1914–1918"],
+    "periods": ["1875–1876", "1914–1918"],
+    "date_note": "* Earlier reconstruction: mainly 1875–1876; Pieve di Cadore sheet 1908, Aviano 1916, Conegliano 1918. These substitutions overlap the later period, so the interval is not uniform across the study area.",
+    "early_note": "Main series: 1875–1876. Substitute sheets: Pieve di Cadore (1908), Aviano (1916), Conegliano (1918).",
+    "late_note": "Map sheets dated 1914–1918."
+  },
+  "dolina": {
+    "region": "Galicia",
+    "subtitle": "Dolina district",
+    "labels": ["1876–1878", "1914*"],
+    "periods": ["1876–1878", "1914"],
+    "date_note": "* Later reconstruction: mainly 1914; Okormezo sheet 1907. Porohy is undated and provisionally attributed to the 1914 series.",
+    "early_note": "Map sheets dated 1876–1878.",
+    "late_note": "Main series: 1914. Okormezo sheet: 1907. Porohy: year unspecified; attribution to the 1914 series remains provisional."
+  },
+  "szeben": {
+    "region": "Hungary",
+    "subtitle": "Szeben County",
+    "labels": ["1875–1879", "1912–1915"],
+    "periods": ["1875–1879", "1912–1915"],
+    "date_note": "Sheet dates span 1875–1879 for the earlier reconstruction and 1912–1915 for the later reconstruction.",
+    "early_note": "Map sheets dated 1875–1879.",
+    "late_note": "Map sheets dated 1912–1915."
+  },
+  "haromszek": {
+    "region": "Hungary",
+    "subtitle": "Háromszék County",
+    "labels": [],
+    "periods": [],
+    "date_note": "Historical boundary available; forest reconstructions are forthcoming."
+  }
+}

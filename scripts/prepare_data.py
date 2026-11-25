@@ -66,8 +66,11 @@ def main():
         paths=list(args.gis_root.rglob(name))
         if len(paths)!=1: raise ValueError(f'Expected exactly one {name}, found {len(paths)}')
         return read(paths[0])
-    empire=combined(source('Austro_Hungarian_Empire_Lands.shp'))
-    save('empire.geojson',fc([(empire,{'name':'Austria-Ungheria · confini 1910'})],50))
+    lands=source('Austro_Hungarian_Empire_Lands.shp')
+    from export_context import export_lands
+    export_lands(lands)
+    empire=combined(lands)
+    save('empire.geojson',fc([(empire,{'name':'Austria-Hungary · 1910'})],50))
     municipalities=[(g,{'name':p['COMUNE']}) for g,p in source('Comuni_Belluno_1991.geojson') if p['COMUNE'].startswith(('Cortina','Livinallongo','Colle Santa Lucia'))]
     assert len(municipalities)==3
     save('municipalities.geojson',fc(municipalities,5))
@@ -76,12 +79,14 @@ def main():
       ('dolina','Dolina','Galizia','Distretto di Dolina','Dolyna_District.geojson',['Copertura_Dolina_1877.geojson','Copertura_Dolina_1914.geojson'],['1877','1914']),
       ('szeben','Szeben','Ungheria','Contea di Szeben','Szeben_County.geojson',['Copertura_Fogaras_1875.geojson','Copertura_Fogaras_1914.geojson'],['1875','1914']),
       ('haromszek','Háromszék','Ungheria','Contea di Háromszék','Haromszek_County.geojson',[],[])]
+    chronology=json.loads((OUT/'chronology.json').read_text(encoding='utf-8'))
     cases=[]; boundaries=[]; rows=[]
     for key,name,region,subtitle,boundaryfile,files,labels in specs:
         boundary=combined(source(boundaryfile))
         if key=='belluno': boundary=clean(union_all([boundary]+[g for g,p in municipalities]))
         boundaries.append((boundary,{'id':key,'name':name}))
         case=dict(id=key,name=name,region=region,subtitle=subtitle,labels=labels,sources=files,boundary_km2=boundary.area/1e6,available=bool(files))
+        case.update(chronology[key]); labels=case['labels']
         if not files:
             case['bounds']=list(transform(TO_WEB,boundary).bounds); cases.append(case); continue
         print('Processing',name,flush=True)

@@ -1,61 +1,85 @@
 # INWOOD — Forest Cover Atlas
 
-Web GIS statico per Belluno, Dolina, Szeben e il futuro caso Háromszék. Coperture integrali e confine dell'Austria-Ungheria del 1910 come contesto, senza ritagli imperiali o amministrativi.
+Live atlas: https://vcolaprice1.github.io/inwood_cover/
 
-## Uso
+An English-language historical forest GIS for Belluno, Dolina, Szeben and the forthcoming Háromszék case. Compare earlier and later reconstructions, persistent forest, gain and loss; use swipe or alternating views; inspect areas in hectares and square kilometres; download CSV and complete analytical GeoJSON.
 
-Servire `dist/` con qualsiasi server statico, ad esempio:
+## Chronology
+
+| Study area | Earlier reconstruction | Later reconstruction |
+|---|---|---|
+| Belluno | 1875–1876; substitute sheets: Pieve di Cadore 1908, Aviano 1916, Conegliano 1918 | 1914–1918 |
+| Dolina, Galicia | 1876–1878 | Mainly 1914; Okormezo 1907; Porohy undated, provisionally attributed to the 1914 series |
+| Szeben | 1875–1879 | 1912–1915 |
+| Háromszék | Forthcoming | Forthcoming |
+
+Dates and notes are maintained in `dist/data/chronology.json`. Run `python scripts/update_metadata.py` after editing it. This updates the catalogue and date labels in downloads without changing analytical geometry. The later Belluno dates apply to the second forest reconstruction already supplied to the project. The map periods are not spatially uniform; Belluno's substitute sheets overlap the later period.
+
+## Local preview
+
+Serve the static `dist/` directory:
 
 ```sh
 python -m http.server 8766 --directory dist
 ```
 
-Aprire http://localhost:8766. Selezionare caso, prima/seconda rilevazione, variazioni o confronto a scorrimento. Le superfici sono disponibili in ha e km²; i popup mostrano le componenti dissolte. L'alternanza visualizza solo le due carte, senza interpolazione temporale. CSV e GeoJSON analitici compressi sono scaricabili dall'interfaccia.
+Open http://localhost:8766. No frontend build or API key is required.
 
-La base Naturale è locale, senza etichette né elementi antropici; Natural Earth 1:50m è adatta al contesto europeo, con dettaglio limitato allo zoom locale. OSM mostra la cartografia attuale. CARTO Positron senza etichette è opzionale: richiede una chiave da inserire nell'interfaccia, mantenuta solo in memoria; contiene strade ed elementi antropici. Nessun segreto è incluso nel repository.
+## Basemaps and boundaries
 
-## Elaborazione riproducibile
+The default basemap uses OpenStreetMap/OpenMapTiles vector data hosted by OpenFreeMap, rendered through MapLibre with a custom style containing water and natural land-cover layers only. Labels, roads, buildings, settlements, POIs and administrative borders are excluded. The pale modern land cover is context, not historical forest data. Lakes can include artificial reservoirs. Standard OSM is also available.
+
+If vector rendering or tile loading fails, the interface explicitly announces a local Natural Earth fallback (1:50 million). CARTO is not used.
+
+Austria-Hungary's outer boundary and 18 historical Lands come from the supplied 1910 boundary dataset. They are drawn as outlines with white halos and no polygon fill. Land names follow the dataset's groupings rather than a claim of uniform administrative status. The first source feature groups the Austrian Littoral under Istrien. Study-area and municipal boundaries can be switched independently.
+
+## Methods
+
+The in-app Methods & sources dialog documents:
+
+- Colour Third Military Survey maps: raster cropping, distributed training samples, dzetsaka Random Forest classification, binary forest-mask extraction, Sieve filtering, polygonisation, metric reprojection, geometry repair, minimum patch area, hole inspection/restoration, simplification, smoothing, dissolution and visual validation. Settings come from the project's QGIS guide and are not reapplied by the atlas.
+- Black-and-white maps: dependent vectorisation following Bednarczyk, Kaim & Ostafin (2016).
+- Overlay uncertainty and sliver polygons: Sae-Jung, Chen & Phuong (2008), especially p. 827. The atlas does not implement their error simulations or split-and-merge correction.
+- Backdating/updating: Kaim et al. (2016) and Feranec et al. (2007). Choosing the closest available map sheet is separately documented as the project's source-selection rule.
+
+Full references and DOI links are provided in the dialog. It distinguishes the source-extraction thresholds from the separate web-display simplification.
+
+## Reproducible analytical processing
 
 ```sh
 python -m pip install --target .gis-deps -r requirements.txt
-python scripts/prepare_data.py "PERCORSO/ALLA/CARTELLA/GIS"
+python scripts/prepare_data.py "PATH/TO/GIS"
 python scripts/validate_data.py
 ```
 
-Il percorso GIS deve contenere i file forniti, con nomi univoci. Lo shapefile imperiale richiede almeno `.shp`, `.shx`, `.dbf`, `.prj`. Gli originali vengono solo letti e non sono inclusi nel repository. Il catalogo registra nome, SHA-256, CRS, numero di oggetti e geometrie invalide riparate. Le geometrie analitiche derivate sono incluse, insieme ai vettori per la visualizzazione.
+The input directory must contain the supplied files under unique names. The imperial shapefile requires its accompanying SHX, DBF and PRJ files. Input files are read only. The catalogue records filenames, SHA-256 fingerprints, source CRS and geometry repairs for provenance, although filenames are not discussed in the interface.
 
-La pipeline legge il CRS dichiarato, ripara geometrie invalide, mantiene le parti poligonali, riproietta in EPSG:3035 e dissolve ciascuna epoca prima delle operazioni. Calcola intersezione (persistenza), seconda meno prima (guadagno), prima meno seconda (perdita). Verifica le identità delle aree e la disgiunzione di guadagno e perdita. La cartografia usa WGS84, semplificazione topologica di 5 m per componente e omette solo in visualizzazione le componenti sotto 25 m². Statistiche e file `.full.geojson.gz` non applicano questi filtri.
+Each reconstruction is repaired, projected to EPSG:3035 and dissolved before calculating areas. Persistence is the intersection; gain is later minus earlier; loss is earlier minus later. Net change is gain minus loss. Within-period overlaps are counted once. All supplied forest coverage is retained without clipping to the administrative or imperial boundaries. Out-of-boundary areas are reported in the methods panel.
 
-I confini amministrativi non tagliano i boschi. Nel metodo dell'interfaccia si riportano le superfici esterne ai confini di studio e quelle interne al perimetro imperiale, per rilevare discrepanze senza alterare i dati.
+The web map uses WGS84 geometry simplified by 5 m and omits components below 25 m² for display only. Full analytical GeoJSON downloads and statistics preserve all components without these display filters. Final WGS84 exports are repaired for numerical degeneracies introduced by reprojection. No independent survey-footprint mask was supplied; comparable coverage is assumed. Map differences are not automatically real forest changes, and annual rates are not estimated.
 
-## Casi e cronologia
+Belluno's study outline combines the supplied provincial boundary with Cortina d'Ampezzo, Livinallongo del Col di Lana and Colle Santa Lucia. Their separate municipal outlines refer to 1991.
 
-| Caso | Prima | Seconda | Note |
-|---|---|---|---|
-| Belluno | TMS 1 Aus | TMS 3 Aus | Anni precisi da fornire; non vengono assegnati 1875/1914 automaticamente |
-| Dolina | 1877 | 1914 | Anni desunti dai nomi forniti |
-| Szeben | 1875 | 1914 | I nomi originali Fogaras sono un errore materiale segnalato dall'autore |
-| Háromszék | — | — | Solo confine, coperture non disponibili |
+To add Háromszék forest coverage, populate its input filenames in `scripts/prepare_data.py` and its date metadata in `dist/data/chronology.json`, then regenerate. The interface automatically enables comparison when data are available.
 
-Belluno usa l'unione del confine provinciale 1881 fornito con Cortina d'Ampezzo, Livinallongo del Col di Lana e Colle Santa Lucia, selezionati dal file dei comuni del 1991. I tre perimetri restano visibili separatamente; non sono presentati come confini comunali ottocenteschi.
+## Deployment
 
-Per cambiare le date aggiornare le etichette in `specs` dentro `scripts/prepare_data.py` e rigenerare. Per Háromszék aggiungere i due nomi di file e le due etichette all'ultima voce: il frontend abilita automaticamente tutti i confronti, senza modifiche al codice UI.
+GitHub Pages serves the root of the `gh-pages` branch. After committing changes to main:
 
-## Limiti interpretativi
+```sh
+git push origin main
+git subtree split --prefix=dist -b codex/pages
+git push origin codex/pages:gh-pages
+```
 
-Le differenze includono possibili effetti di scala, georeferenziazione, digitalizzazione e classificazione. Non è stata fornita una maschera indipendente dell'area effettivamente rilevata: il confronto assume che i due censimenti abbiano copertura comparabile. Non si applicano soglie analitiche di significatività e non si inferisce un tasso annuale. Valutare i risultati con le carte originali prima di interpretarli come variazioni reali.
+The existing local `codex/pages` branch can be updated by the subtree command when its history is compatible. Do not force-push unrelated history. The optional Actions workflow supports a future switch to Actions-based Pages publishing. Sites configuration is stored in `.openai/hosting.json`; it does not affect GitHub Pages.
 
-## Basi e attribuzioni
+## Attribution
 
-- Leaflet 1.9.4, vendorizzato; licenza in `dist/vendor/LEAFLET-LICENSE`.
+- Leaflet 1.9.4; MapLibre GL JS 5.6.2; MapLibre GL Leaflet 0.1.4. Vendor licences are in `dist/vendor/`.
 - OpenStreetMap: https://www.openstreetmap.org/copyright
-- CARTO: https://github.com/CartoDB/basemap-styles e https://carto.com/basemaps/
-- Natural Earth, pubblico dominio: https://www.naturalearthdata.com/about/terms-of-use/
+- OpenFreeMap: https://openfreemap.org/quick_start/
+- OpenMapTiles: https://openmaptiles.org/
+- Natural Earth fallback, public domain: https://www.naturalearthdata.com/about/terms-of-use/
 
-La base naturale deriva dai file `ne_50m_land`, `ne_50m_lakes`, `ne_50m_rivers_lake_centerlines` del repository https://github.com/nvkelso/natural-earth-vector/tree/master/geojson, ritagliati a [-15,30,40,65]. Per rigenerarla scaricare i tre GeoJSON in `.cache/land.geojson`, `.cache/lakes.geojson`, `.cache/rivers.geojson`, quindi eseguire `python scripts/prepare_basemap.py`.
-
-I diritti dei dati di ricerca restano ai rispettivi titolari; non viene attribuita una licenza aperta non fornita dall'autore. I font di Google sono opzionali: in assenza di rete vengono usati i font di sistema.
-
-## Pubblicazione
-
-`dist/` è autonomo e utilizzabile su GitHub Pages o altro hosting statico. Il workflow Pages può essere avviato manualmente dalla scheda Actions dopo aver scelto **GitHub Actions** in Settings → Pages. La configurazione `.openai/hosting.json` serve per la distribuzione Sites e non è richiesta da GitHub Pages.
+Natural Earth fallback data derive from 1:50m land, lakes and rivers, clipped to Europe. Research-data rights remain with their holders; no open licence is assigned without the author's instruction. Google Fonts are optional, with system-font fallbacks.
