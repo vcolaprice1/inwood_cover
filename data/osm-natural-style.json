@@ -1,0 +1,16 @@
+{
+  "version": 8,
+  "name": "INWOOD OSM natural features",
+  "metadata": {"description": "No labels, transport, buildings, settlements, POIs or administrative boundaries. Present-day natural features, not historical land cover."},
+  "sources": {"openmaptiles": {"type": "vector", "url": "https://tiles.openfreemap.org/backup_planet", "attribution": "<a href=\"https://openfreemap.org/\">OpenFreeMap</a> © <a href=\"https://openmaptiles.org/\">OpenMapTiles</a> © <a href=\"https://www.openstreetmap.org/copyright\">OpenStreetMap</a> contributors"}},
+  "layers": [
+    {"id":"background","type":"background","paint":{"background-color":"#f3f2ed"}},
+    {"id":"wood","type":"fill","source":"openmaptiles","source-layer":"landcover","filter":["==",["get","class"],"wood"],"paint":{"fill-color":"#d8dfd4","fill-opacity":0.55}},
+    {"id":"grass","type":"fill","source":"openmaptiles","source-layer":"landcover","filter":["==",["get","class"],"grass"],"paint":{"fill-color":"#e3e5d8","fill-opacity":0.45}},
+    {"id":"wetland","type":"fill","source":"openmaptiles","source-layer":"landcover","filter":["==",["get","class"],"wetland"],"paint":{"fill-color":"#d8e2df","fill-opacity":0.55}},
+    {"id":"ice","type":"fill","source":"openmaptiles","source-layer":"landcover","filter":["==",["get","class"],"ice"],"paint":{"fill-color":"#fcfdfd","fill-opacity":0.9}},
+    {"id":"sand","type":"fill","source":"openmaptiles","source-layer":"landcover","filter":["==",["get","class"],"sand"],"paint":{"fill-color":"#eae3cf","fill-opacity":0.6}},
+    {"id":"water","type":"fill","source":"openmaptiles","source-layer":"water","filter":["all",["!=",["get","brunnel"],"tunnel"],["!=",["get","class"],"swimming_pool"]],"paint":{"fill-color":"#c6dce3","fill-opacity":1}},
+    {"id":"rivers","type":"line","source":"openmaptiles","source-layer":"waterway","filter":["all",["match",["get","class"],["river","stream"],true,false],["!=",["get","brunnel"],"tunnel"]],"paint":{"line-color":"#a6c5d2","line-opacity":0.75,"line-width":["interpolate",["linear"],["zoom"],6,0.5,12,1.2,18,3]}}
+  ]
+}
