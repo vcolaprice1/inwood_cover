@@ -1,0 +1,5 @@
+.gis-deps/
+__pycache__/
+.cache/
+*.tar.gz
+*.zip
